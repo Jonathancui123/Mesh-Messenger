@@ -152,6 +152,7 @@ func dial(addr string) {
 	defer peers.Remove(addr)
 
 	conn, err := net.Dial("tcp", addr)
+	fmt.Printf("* Connected to %v *\n", addr)
 	if err != nil {
 		log.Println(addr, err)
 		return
