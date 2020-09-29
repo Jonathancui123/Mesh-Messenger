@@ -1,5 +1,5 @@
 # go-mesh-network
-
+![Video demo of go-mesh-network!](https://media.giphy.com/media/fDzBfLeUKXGsgoCNuc/giphy.gif)
 
 ## About
 A simple mesh network client that sends messages over TCP connections. It records the addresses of all peers it has encountered, and also broadcasts incoming messages to existing peers. New clients can join the network by dialing into any current member of the network. 
