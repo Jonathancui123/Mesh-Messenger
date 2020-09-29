@@ -1,4 +1,4 @@
-module go-peer-to-peer
+module github.com/jonathancui123/go-peer-network
 
 go 1.15
 
