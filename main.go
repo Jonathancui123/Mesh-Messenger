@@ -53,7 +53,6 @@ func main() {
 }
 
 var peers = &Peers{m: make(map[string]chan<- Message)}
-var seen = make(map[string]bool)
 
 // Peers is a structure for concurrent-safe Peers registry
 type Peers struct {
@@ -168,12 +167,17 @@ func dial(addr string) {
 	}
 }
 
+var seenIDs = struct {
+	m map[string]bool
+	sync.Mutex
+}{m: make(map[string]bool)}
+
 // Seen returns true if the specified id has been seen before
 // If not, it returns false and marks the id as seen
 func Seen(id string) bool {
-	if seen[id] {
-		return true
-	}
-	seen[id] = true
-	return false
+	seenIDs.Lock()
+	defer seenIDs.Unlock()
+	ok := seenIDs.m[id]
+	seenIDs.m[id] = true
+	return ok
 }
