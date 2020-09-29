@@ -21,6 +21,7 @@ var (
 
 // Message is a structure for sending messages in this mesh network
 type Message struct {
+	ID   string
 	Addr string
 	Body string
 }
@@ -52,6 +53,7 @@ func main() {
 }
 
 var peers = &Peers{m: make(map[string]chan<- Message)}
+var seen = make(map[string]bool)
 
 // Peers is a structure for concurrent-safe Peers registry
 type Peers struct {
@@ -113,8 +115,11 @@ func serve(c net.Conn) {
 			log.Println(err)
 			return
 		}
-		go dial(m.Addr)
-		fmt.Printf("%#v\n", m) // Print in go-syntax representation
+		if !Seen(m.ID) {
+			go dial(m.Addr)
+			broadcast(m)
+			fmt.Printf("%#v\n", m) // Print in go-syntax representation
+		}
 	}
 }
 
@@ -122,11 +127,12 @@ func read() {
 	lines := bufio.NewScanner(os.Stdin)
 	for lines.Scan() {
 		message := Message{
+			ID:   util.RandomID(),
 			Addr: self,
 			Body: lines.Text(),
 		}
+		Seen(message.ID)
 		broadcast(message)
-
 	}
 	if err := lines.Err(); err != nil {
 		log.Fatal(err)
@@ -160,4 +166,14 @@ func dial(addr string) {
 			return
 		}
 	}
+}
+
+// Seen returns true if the specified id has been seen before
+// If not, it returns false and marks the id as seen
+func Seen(id string) bool {
+	if seen[id] {
+		return true
+	}
+	seen[id] = true
+	return false
 }
