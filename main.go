@@ -15,15 +15,16 @@ import (
 
 var (
 	self     string
+	nickname = flag.String("name", "unknown", "name shown in messages")
 	peerAddr = flag.String("dial", "", "peer host:port to dial")
-	dialTrue = flag.Bool("dialTrue", true, "determine whether or not to dial a connection")
 )
 
 // Message is a structure for sending messages in this mesh network
 type Message struct {
-	ID   string
-	Addr string
-	Body string
+	Nickname string
+	ID       string
+	Addr     string
+	Body     string
 }
 
 func main() {
@@ -36,8 +37,8 @@ func main() {
 	log.Println("Listening on", l.Addr())
 	self = l.Addr().String()
 
-	if *dialTrue {
-		go dial(*peerAddr) // start a go-routine for starting connection
+	if len(*peerAddr) > 0 {
+		go dial(*peerAddr) // start a go-routine for connection
 	}
 
 	go read() // start a go-routine for reading from stdIn
@@ -117,7 +118,7 @@ func serve(c net.Conn) {
 		if !Seen(m.ID) {
 			go dial(m.Addr)
 			broadcast(m)
-			fmt.Printf("%#v\n", m) // Print in go-syntax representation
+			fmt.Printf("%v @ %v: %v\n ", m.Nickname, m.Addr, m.Body) // Print in go-syntax representation
 		}
 	}
 }
@@ -126,9 +127,10 @@ func read() {
 	lines := bufio.NewScanner(os.Stdin)
 	for lines.Scan() {
 		message := Message{
-			ID:   util.RandomID(),
-			Addr: self,
-			Body: lines.Text(),
+			Nickname: *nickname,
+			ID:       util.RandomID(),
+			Addr:     self,
+			Body:     lines.Text(),
 		}
 		Seen(message.ID)
 		broadcast(message)
