@@ -8,28 +8,36 @@ import (
 	"log"
 	"net"
 	"os"
+
+	"github.com/campoy/whispering-gophers/util"
 )
 
 var (
-	listenAddr = flag.String("listen", "", "host:port to listen on")
-	dialAddr   = flag.String("dial", "localhost:8000", "host:port to dial")
+	self     string
+	dialAddr = flag.String("dial", "localhost:8000", "host:port to dial")
+	dialTrue = flag.Bool("dialTrue", true, "determine whether or not to dial a connection")
 )
 
 type Message struct {
+	Addr string
 	Body string
 }
 
 func main() {
 	flag.Parse()
 
-	go dial(*dialAddr) // start a go-routine for starting connection
+	messageCh := make(chan Message)
 
-	l, err := net.Listen("tcp", *listenAddr) // listen for TCP connections on given address
+	if *dialTrue {
+		go dial(*dialAddr, messageCh) // start a go-routine for starting connection
+	}
 
+	l, err := util.Listen() // listen for TCP connections on given address
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	log.Println("Listening on", l.Addr())
+	self = l.Addr().String()
 	for {
 		c, err := l.Accept()
 		if err != nil {
@@ -54,23 +62,36 @@ func serve(c net.Conn) {
 	}
 }
 
-func dial(addr string) {
+func read(messageCh chan Message) {
+	lines := bufio.NewScanner(os.Stdin)
+
+	for lines.Scan() {
+		message := Message{
+			Addr: self,
+			Body: lines.Text()}
+
+		messageCh <- message
+
+	}
+	if err := lines.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func dial(addr string, messageCh chan Message) {
 
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	lines := bufio.NewScanner(os.Stdin)
 	enc := json.NewEncoder(conn)
-	for lines.Scan() {
-		message := Message{Body: lines.Text()}
-		err := enc.Encode(message)
+	for {
+		err := enc.Encode(<-messageCh)
+
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
-	if err := lines.Err(); err != nil {
-		log.Fatal(err)
-	}
+
 }
