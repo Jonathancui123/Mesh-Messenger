@@ -1,4 +1,4 @@
-# go-peer-network
+# go-mesh-network
 
 
 ## About
@@ -15,6 +15,6 @@ A simple mesh network client that sends messages over TCP connections. It record
 Firewall must be opened up to incoming and outbound connections.
 
 ```
-go install go-peer-network
+go install go-mesh-network
 go-peer-network [ -nickname <your-nickname> -dial <peer's host:port to dial>] 
 ```

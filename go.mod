@@ -1,4 +1,4 @@
-module github.com/jonathancui123/go-peer-network
+module github.com/jonathancui123/go-mesh-network
 
 go 1.15
 
