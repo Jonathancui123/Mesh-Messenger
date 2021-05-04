@@ -1,4 +1,4 @@
-# go-mesh-network
+# Mesh-Messenger
 ![Video demo of go-mesh-network!](https://github.com/Jonathancui123/go-mesh-network/blob/master/demo/go-mesh-network%20demo.gif)
 
 ## About
