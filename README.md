@@ -18,3 +18,6 @@ Firewall must be opened up to incoming and outbound connections.
 go install go-mesh-network
 go-mesh-network [ -nickname <your-nickname> -dial <peer's host:port to dial>] 
 ```
+
+## Acknowledgement
+This project was made with help from Google I/O's ["Whispering Gopher's"](https://github.com/campoy/whispering-gophers) talk
